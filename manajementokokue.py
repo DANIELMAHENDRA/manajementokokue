@@ -123,7 +123,8 @@ def menu_staff(sistem_kue):
         print("2. Lihat Kue")
         print("3. Perbarui Stok Kue")
         print("4. Hapus Kue")
-        print("5. Keluar")
+        print("5. Hapus Data Pelanggan")
+        print(". Keluar")
 
         pilihan = input("Masukkan pilihan Anda: ")
 
@@ -148,6 +149,9 @@ def menu_staff(sistem_kue):
             sistem_kue.hapus_kue(nama)
 
         elif pilihan == '5':
+            
+
+        elif pilihan == '6':
             break
 
         else:
