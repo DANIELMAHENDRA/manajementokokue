@@ -22,13 +22,15 @@ class Kue:
 
 # Kelas untuk Manajemen Toko Kue
 class ManajemenTokoKue:
-    def __init__(self):
-        self.kue = []  # Array/List untuk menyimpan kue
-        arr = readData()
-        for i in arr:
-            self.kue.append(Kue(i[0], i[1], i[2], i[3]))
-        self.antrian_pesanan = []  # Stack untuk antrian pesanan
-        
+
+  def urutkan_kue_berdasarkan_nama_selection_sort(self):
+    for i in range(len(self.kue)):
+      min_index = i
+      for j in range(i + 1, len(self.kue)):
+        if self.kue[j].nama.lower() < self.kue[min_index].nama.lower():
+          min_index = j
+      self.kue[i], self.kue[min_index] = self.kue[min_index], self.kue[i]
+
     def updateFileCsv(self):
         with open("datakue.csv", "w", newline='', encoding="utf-8") as file:
             writer = csv.writer(file)
