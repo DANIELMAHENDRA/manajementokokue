@@ -1,35 +1,64 @@
+import csv
+
+def readData():    
+    arr = []
+    with open("datakue.csv","r") as filename:
+        csvfile =csv.reader(filename)
+        next(csvfile)
+        for row in csvfile:
+            arr.append(row)
+    return arr
+
+# Kelas Kue dengan atribut dasar
 class Kue:
     def __init__(self, nama, jenis, harga, stok):
         self.nama = nama
         self.jenis = jenis
         self.harga = harga
         self.stok = stok
+    
+    def tolist(self):
+        return [self.nama, self.jenis, self.harga, self.stok]
 
+# Kelas untuk Manajemen Toko Kue
 class ManajemenTokoKue:
     def __init__(self):
-        self.kue = []
-        self.antrian_pesanan = []
-
+        self.kue = []  # Array/List untuk menyimpan kue
+        arr = readData()
+        for i in arr:
+            self.kue.append(Kue(i[0], i[1], i[2], i[3]))
+        self.antrian_pesanan = []  # Stack untuk antrian pesanan
+        
+    def updateFileCsv(self):
+        with open("datakue.csv", "w", newline='', encoding="utf-8") as file:
+            writer = csv.writer(file)
+            writer.writerow(["Nama Kue","jenis" ,"Harga","Stock"])  # Add header row
+            for i in self.kue:
+                writer.writerow(i.tolist())
+                
     def tambah_kue(self, kue):
         self.kue.append(kue)
-        self.kue = sorted(self.kue, key=lambda x: x.nama.lower())  # Sort by name
+        self.updateFileCsv()
+        # self.urutkan_kue_berdasarkan_nama()  # Sorting kue berdasarkan nama
+
+    def urutkan_kue_berdasarkan_nama(self):
+        for i in range(len(self.kue) - 1):
+            for j in range(len(self.kue) - 1 - i):
+                if self.kue[j].nama.lower() > self.kue[j + 1].nama.lower():
+                    self.kue[j], self.kue[j + 1] = self.kue[j + 1], self.kue[j]
 
     def lihat_kue(self):
-        for idx, kue in enumerate(self.kue):
-            print(f"{idx + 1}. {kue.nama} ({kue.jenis}) - Harga: {kue.harga}, Stok: {kue.stok}")
+        # for idx, kue in enumerate(self.kue):
+        #     print(f"{idx + 1}. {kue.nama} ({kue.jenis}) - Harga: {kue.harga}, Stok: {kue.stok}")
+        i = 1
+        for kue in self.kue:
+            print(i, ". Nama Kue : ", kue.nama, " , Jenis Kue : ", kue.jenis, " , Harga Kue : ", kue.harga, " , Stock : ", kue.stok)
+            i += 1
 
     def cari_kue_dengan_nama(self, nama):
-        # Binary search for efficiency
-        low = 0
-        high = len(self.kue) - 1
-        while low <= high:
-            mid = (low + high) // 2
-            if self.kue[mid].nama.lower() == nama.lower():
-                return self.kue[mid]
-            elif self.kue[mid].nama.lower() < nama.lower():
-                low = mid + 1
-            else:
-                high = mid - 1
+        for kue in self.kue:
+            if kue.nama.lower() == nama.lower():
+                return kue
         return None
 
     def perbarui_stok_kue(self, nama, stok_baru):
@@ -48,24 +77,41 @@ class ManajemenTokoKue:
         else:
             print(f"Kue '{nama}' tidak ditemukan.")
 
-    def tambah_pesanan_ke_antrian(self, pesanan):
-        kue = self.cari_kue_dengan_nama(pesanan.nama)
-        if kue:
-            if kue.stok >= pesanan.jumlah:
-                self.antrian_pesanan.append(pesanan)
-                print(f"Pesanan untuk {pesanan.nama} ditambahkan ke dalam antrian.")
-            else:
-                print(f"Stok untuk {pesanan.nama} tidak cukup.")
-        else:
-            print(f"Kue '{pesanan.nama}' tidak ditemukan.")
+    def simpan_kue_ke_csv(self, datakue):
+        with open(datakue, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['Nama', 'Jenis', 'Harga', 'Stok'])
+            for kue in self.kue:
+                writer.writerow([kue.nama, kue.jenis, kue.harga, kue.stok])
+        print(f"Data kue telah disimpan ke {datakue}.")
 
+    def muat_kue_dari_csv(self, datakue):
+        try:
+            with open(datakue, 'r') as csvfile:
+                reader = csv.reader(csvfile)
+                next(reader)  # Skip header
+                self.kue = []
+                for row in reader:
+                    if row:
+                        nama, jenis, harga, stok = row
+                        self.kue.append(Kue(nama, jenis, int(harga), int(stok)))
+            print(f"Data kue telah dimuat dari {datakue}.")
+        except FileNotFoundError:
+            print(f"File {datakue} tidak ditemukan. Mulai dengan data kue kosong.")
+
+    # Fungsi untuk menambahkan pesanan ke stack
+    def tambah_pesanan_ke_antrian(self, pesanan):
+        self.antrian_pesanan.append(pesanan)
+        print(f"Pesanan untuk {pesanan.nama} ditambahkan ke dalam antrian.")
+
+    # Fungsi untuk memproses antrian pesanan dari stack
     def proses_antrian_pesanan(self):
         if self.antrian_pesanan:
-            pesanan = self.antrian_pesanan.pop(0)
+            pesanan = self.antrian_pesanan.pop()
             kue = self.cari_kue_dengan_nama(pesanan.nama)
             if kue and kue.stok >= pesanan.jumlah:
                 kue.stok -= pesanan.jumlah
-                print(f"Pesanan untuk {pesanan.nama} telah diproses dan dihapus dari antrian.")
+                print(f"Pesanan untuk {pesanan.nama} telah diproses.")
                 return pesanan
             else:
                 print(f"Stok untuk {pesanan.nama} tidak cukup untuk diproses.")
@@ -73,58 +119,23 @@ class ManajemenTokoKue:
             print("Tidak ada pesanan dalam antrian.")
         return None
 
+# Kelas Pesanan untuk mengelola pesanan kue
 class Pesanan:
     def __init__(self, nama, jumlah):
         self.nama = nama
         self.jumlah = jumlah
 
-# Sistem Login dan Registrasi
-class User:
-    def __init__(self, username, password, role):
-        self.username = username
-        self.password = password
-        self.role = role
-
-class UserManagement:
-    def __init__(self):
-        self.users = {}
-
-    def register(self):
-        print("Register Akun Baru")
-        while True:
-            username = input("Masukkan username: ")
-            if username in self.users:
-                print("Username sudah ada, silakan coba lagi.")
-            else:
-                password = input("Masukkan password: ")
-                role = input("Pilih peran (staff/pengunjung): ").lower()
-                if role == 'staff' or role == 'pengunjung':
-                    self.users[username] = User(username, password, role)
-                    print(f"Akun untuk {username} berhasil dibuat sebagai {role}.")
-                    break
-                else:
-                    print("Peran tidak valid. Silakan pilih antara 'staff' atau 'pengunjung'.")
-
-    def login(self):
-        print("Login")
-        username = input("Masukkan username: ")
-        password = input("Masukkan password: ")
-        if username in self.users and self.users[username].password == password:
-            print(f"Login berhasil sebagai {self.users[username].role}.")
-            return self.users[username].role
-        else:
-            print("Login gagal. Username atau password salah.")
-            return None
-
+# Fungsi menu staff dengan opsi yang relevan
 def menu_staff(sistem_kue):
     while True:
         print("\nMenu Staff:")
         print("1. Tambah Kue")
         print("2. Lihat Kue")
-        print("3. Perbarui Stok Kue")
+        print("3. Perbarui Stok Kue") #hapus
         print("4. Hapus Kue")
-        print("5. Hapus Data Pelanggan")
-        print(". Keluar")
+        print("5. Tambah Pesanan ke Antrian")
+        print("6. Proses Antrian Pesanan")
+        print("7. Keluar")
 
         pilihan = input("Masukkan pilihan Anda: ")
 
@@ -143,55 +154,18 @@ def menu_staff(sistem_kue):
             nama = input("Masukkan nama kue: ")
             stok_baru = int(input("Masukkan stok baru: "))
             sistem_kue.perbarui_stok_kue(nama, stok_baru)
-
         elif pilihan == '4':
             nama = input("Masukkan nama kue untuk dihapus: ")
             sistem_kue.hapus_kue(nama)
-
         elif pilihan == '5':
-            
-
-        elif pilihan == '6':
-            break
-
-        else:
-            print("Pilihan tidak valid. Silakan masukkan opsi yang benar.")
-
-def menu_pengunjung(sistem_kue):
-    while True:
-        print("\nMenu Pengunjung:")
-        print("1. Lihat Kue")
-        print("2. Buat Pesanan")
-        print("3. Proses Antrian Pesanan")
-        print("4. Keluar")
-
-        pilihan = input("Masukkan pilihan Anda: ")
-
-        if pilihan == '1':
-            print("\nDaftar Kue:")
-            sistem_kue.lihat_kue()
-
-        elif pilihan == '2':
             nama = input("Masukkan nama kue untuk dipesan: ")
             jumlah = int(input("Masukkan jumlah: "))
             pesanan = Pesanan(nama, jumlah)
-            konfirmasi = input("Apakah Anda ingin melanjutkan memesan? (y/n): ").lower()
-            if konfirmasi == 'y':
-                sistem_kue.tambah_pesanan_ke_antrian(pesanan)
-                print("Pesanan berhasil ditambahkan.")
-            elif konfirmasi == 'n':
-                print("Pesanan dibatalkan.")
-            else:
-                print("Opsi tidak valid, kembali ke menu.")
-
-        elif pilihan == '3':
-            pesanan = sistem_kue.proses_antrian_pesanan()
-            if pesanan:
-                print(f"Memproses pesanan: {pesanan.nama} x{pesanan.jumlah}")
-
-        elif pilihan == '4':
+            sistem_kue.tambah_pesanan_ke_antrian(pesanan)
+        elif pilihan == '6':
+            sistem_kue.proses_antrian_pesanan()
+        elif pilihan == '9':
             break
-
         else:
             print("Pilihan tidak valid. Silakan masukkan opsi yang benar.")
 
@@ -199,35 +173,14 @@ def main():
     # Inisialisasi sistem manajemen toko kue
     sistem_kue = ManajemenTokoKue()
 
-    # Tambahkan beberapa kue ke dalam sistem
-    sistem_kue.tambah_kue(Kue("Kue Keju", "Keju", 15000, 10))
-    sistem_kue.tambah_kue(Kue("Kue Coklat", "Coklat", 12000, 15))
-    sistem_kue.tambah_kue(Kue("Kue Strawberry", "Strawberry", 20000, 5))
+    # # Muat data kue dari file CSV saat program dimulai
+    # sistem_kue.muat_kue_dari_csv('File csv.csv')
 
-    # Inisialisasi manajemen pengguna
-    user_management = UserManagement()
+    # Langsung masuk ke menu staff
+    menu_staff(sistem_kue)
 
-    while True:
-        print("\nMain Menu:")
-        print("1. Login")
-        print("2. Register")
-        print("3. Exit")
-
-        pilihan = input("Masukkan pilihan Anda: ")
-
-        if pilihan == '1':
-            user_type = user_management.login()
-            if user_type:
-                if user_type == "staff":
-                    menu_staff(sistem_kue)
-                else:
-                    menu_pengunjung(sistem_kue)
-        elif pilihan == '2':
-            user_management.register()
-        elif pilihan == '3':
-            break
-        else:
-            print("Pilihan tidak valid. Silakan masukkan opsi yang benar.")
+    # # Simpan data kue ke file CSV saat program selesai
+    # sistem_kue.simpan_kue_ke_csv('File csv.csv')
 
 if __name__ == "__main__":
     main()
