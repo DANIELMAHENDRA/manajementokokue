@@ -106,9 +106,26 @@ class ManajemenTokoKue:
             print(f"Nama Kue: {kue.nama}, Jenis Kue: {kue.jenis}, Harga Kue: {kue.harga}, Stok: {kue.stok}")
 
     def cari_kue_dengan_nama(self, nama):
-        for kue in self.kue:
-            if kue.nama.lower() == nama.lower():
-                return kue
+        self.urutkan_kue_berdasarkan_nama()
+        # Tentukan batas bawah dan atas untuk pencarian binary
+        low = 0
+        high = len(self.kue) - 1
+
+        while low <= high:
+            mid = (low + high) // 2
+            mid_nama = self.kue[mid].nama.lower()
+
+            # Jika nama kue ditemukan di tengah
+            if mid_nama == nama.lower():
+                return self.kue[mid]
+            # Jika nama kue ada di sebelah kiri
+            elif mid_nama > nama.lower():
+                high = mid - 1
+            # Jika nama kue ada di sebelah kanan
+            else:
+                low = mid + 1
+
+        # Jika kue tidak ditemukan
         return None
 
     def hapus_kue(self, nama):
@@ -189,17 +206,27 @@ def apply_style(widget, bg_color, fg_color, font=("Arial", 12)):
 def menu_staff(sistem_kue):
     root = tk.Tk()
     root.title("Menu Staff")
-    root.geometry("800x600")
-    root.configure(bg="#E0F7FA")  # Background color light blue
+    window_width = 800
+    window_height = 600
+
+    # Menghitung posisi x dan y agar frame berada di tengah
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    x = (screen_width // 2) - (window_width // 2)
+    y = (screen_height // 2) - (window_height // 2)
+
+    root.geometry(f"{window_width}x{window_height}+{x}+{y}")  # Menentukan ukuran dan posisi jendela
+
+    root.configure(bg="#E0F7FA")  # Warna latar belakang biru muda
 
     # Frame untuk menu
     menu_frame = tk.Frame(root, bg="#E0F7FA")
-    menu_frame.pack(pady=20)
+    menu_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)  # Menempatkan frame di tengah jendela
 
     title_label = tk.Label(menu_frame, text="Menu Staff", font=("Arial", 16), bg="#E0F7FA")
     title_label.pack()
 
-    # Buttons for the menu
+    # Tombol untuk menu
     btn_tambah_kue = tk.Button(menu_frame, text="Tambah Kue", command=lambda: tambah_kue(sistem_kue), bg="#0288D1", fg="white", font=("Arial", 12), width=25)
     btn_tambah_kue.pack(pady=5)
 
@@ -252,7 +279,16 @@ def tambah_kue(sistem_kue):
 
     tambah_kue_win = tk.Toplevel()
     tambah_kue_win.title("Tambah Kue")
-    tambah_kue_win.geometry("400x300")
+    window_width = 400
+    window_height = 300
+
+    # Menghitung posisi x dan y agar jendela tambahan berada di tengah layar
+    screen_width = tambah_kue_win.winfo_screenwidth()
+    screen_height = tambah_kue_win.winfo_screenheight()
+    x = (screen_width // 2) - (window_width // 2)
+    y = (screen_height // 2) - (window_height // 2)
+
+    tambah_kue_win.geometry(f"{window_width}x{window_height}+{x}+{y}")
     tambah_kue_win.configure(bg="#E0F7FA")
 
     tk.Label(tambah_kue_win, text="Nama Kue:", bg="#E0F7FA").pack(pady=5)
@@ -271,13 +307,24 @@ def tambah_kue(sistem_kue):
     entry_stok = tk.Entry(tambah_kue_win)
     entry_stok.pack(pady=5)
 
-    tk.Button(tambah_kue_win, text="Simpan", command=simpan_kue, bg="#0288D1", fg="white").pack(pady=20)
+    tk.Button(tambah_kue_win, text="Simpan", command=simpan_kue, bg="#0288D1", fg="white").pack(pady=10)
+
+    tambah_kue_win.mainloop()
 
 # Fungsi untuk melihat kue
 def lihat_kue(sistem_kue):
     lihat_kue_win = tk.Toplevel()
     lihat_kue_win.title("Daftar Kue")
-    lihat_kue_win.geometry("600x400")
+    window_width = 600
+    window_height = 400
+
+    # Menghitung posisi x dan y agar jendela tambahan berada di tengah layar
+    screen_width = lihat_kue_win.winfo_screenwidth()
+    screen_height = lihat_kue_win.winfo_screenheight()
+    x = (screen_width // 2) - (window_width // 2)
+    y = (screen_height // 2) - (window_height // 2)
+
+    lihat_kue_win.geometry(f"{window_width}x{window_height}+{x}+{y}")
     lihat_kue_win.configure(bg="#E0F7FA")
 
     tree = ttk.Treeview(lihat_kue_win, columns=("Nama", "Jenis", "Harga", "Stok"), show="headings")
@@ -290,6 +337,8 @@ def lihat_kue(sistem_kue):
     for kue in sistem_kue.kue:
         tree.insert("", tk.END, values=(kue.nama, kue.jenis, kue.harga, kue.stok))
 
+    lihat_kue_win.mainloop()
+
 # Fungsi untuk menghapus kue
 def hapus_kue(sistem_kue):
     def hapus():
@@ -300,13 +349,24 @@ def hapus_kue(sistem_kue):
 
     hapus_kue_win = tk.Toplevel()
     hapus_kue_win.title("Hapus Kue")
-    hapus_kue_win.geometry("300x200")
+    window_width = 300
+    window_height = 200
+
+    # Menghitung posisi x dan y agar jendela tambahan berada di tengah layar
+    screen_width = hapus_kue_win.winfo_screenwidth()
+    screen_height = hapus_kue_win.winfo_screenheight()
+    x = (screen_width // 2) - (window_width // 2)
+    y = (screen_height // 2) - (window_height // 2)
+
+    hapus_kue_win.geometry(f"{window_width}x{window_height}+{x}+{y}")
     hapus_kue_win.configure(bg="#E0F7FA")
 
     tk.Label(hapus_kue_win, text="Nama Kue yang akan dihapus:", bg="#E0F7FA").pack(pady=10)
     entry_nama = tk.Entry(hapus_kue_win)
-    entry_nama.pack(pady=10)
+    entry_nama.pack(pady=5)
     tk.Button(hapus_kue_win, text="Hapus", command=hapus, bg="#0288D1", fg="white").pack(pady=10)
+
+    hapus_kue_win.mainloop()
 
 # Fungsi untuk mencari kue
 def cari_kue(sistem_kue):
@@ -320,15 +380,26 @@ def cari_kue(sistem_kue):
 
     cari_kue_win = tk.Toplevel()
     cari_kue_win.title("Cari Kue")
-    cari_kue_win.geometry("400x300")
+    window_width = 400
+    window_height = 300
+
+    # Menghitung posisi x dan y agar jendela tambahan berada di tengah layar
+    screen_width = cari_kue_win.winfo_screenwidth()
+    screen_height = cari_kue_win.winfo_screenheight()
+    x = (screen_width // 2) - (window_width // 2)
+    y = (screen_height // 2) - (window_height // 2)
+
+    cari_kue_win.geometry(f"{window_width}x{window_height}+{x}+{y}")
     cari_kue_win.configure(bg="#E0F7FA")
 
-    tk.Label(cari_kue_win, text="Nama Kue yang dicari:", bg="#E0F7FA").pack(pady=10)
+    tk.Label(cari_kue_win, text="Nama Kue yang dicari:", bg="#E0F7FA").pack(pady=5)
     entry_nama = tk.Entry(cari_kue_win)
-    entry_nama.pack(pady=10)
-    tk.Button(cari_kue_win, text="Cari", command=cari, bg="#0288D1", fg="white").pack(pady=10)
+    entry_nama.pack(pady=5)
+    tk.Button(cari_kue_win, text="Cari", command=cari, bg="#0288D1", fg="white").pack(pady=5)
     result_label = tk.Label(cari_kue_win, text="", bg="#E0F7FA")
-    result_label.pack(pady=10)
+    result_label.pack(pady=5)
+
+    cari_kue_win.mainloop()
 
 # Fungsi untuk mengupdate kue
 def update_kue(sistem_kue):
@@ -344,7 +415,16 @@ def update_kue(sistem_kue):
 
     update_kue_win = tk.Toplevel()
     update_kue_win.title("Update Kue")
-    update_kue_win.geometry("400x400")
+    window_width = 400
+    window_height = 400
+
+    # Menghitung posisi x dan y agar jendela tambahan berada di tengah layar
+    screen_width = update_kue_win.winfo_screenwidth()
+    screen_height = update_kue_win.winfo_screenheight()
+    x = (screen_width // 2) - (window_width // 2)
+    y = (screen_height // 2) - (window_height // 2)
+
+    update_kue_win.geometry(f"{window_width}x{window_height}+{x}+{y}")
     update_kue_win.configure(bg="#E0F7FA")
 
     tk.Label(update_kue_win, text="Nama Kue yang akan diupdate:", bg="#E0F7FA").pack(pady=5)
@@ -369,6 +449,8 @@ def update_kue(sistem_kue):
 
     tk.Button(update_kue_win, text="Update", command=update, bg="#0288D1", fg="white").pack(pady=20)
 
+    update_kue_win.mainloop()
+
 # Fungsi untuk mengurutkan kue berdasarkan nama
 def urutkan_kue_berdasarkan_nama(sistem_kue):
         sistem_kue.urutkan_kue_berdasarkan_nama()
@@ -391,7 +473,16 @@ def tambah_pesanan(sistem_kue):
 
     tambah_pesanan_win = tk.Toplevel()
     tambah_pesanan_win.title("Tambah Pesanan")
-    tambah_pesanan_win.geometry("400x300")
+    window_width = 400
+    window_height = 300
+
+    # Menghitung posisi x dan y agar jendela tambahan berada di tengah layar
+    screen_width = tambah_pesanan_win.winfo_screenwidth()
+    screen_height = tambah_pesanan_win.winfo_screenheight()
+    x = (screen_width // 2) - (window_width // 2)
+    y = (screen_height // 2) - (window_height // 2)
+
+    tambah_pesanan_win.geometry(f"{window_width}x{window_height}+{x}+{y}")
     tambah_pesanan_win.configure(bg="#E0F7FA")
 
     tk.Label(tambah_pesanan_win, text="Nama Kue:", bg="#E0F7FA").pack(pady=5)
@@ -404,11 +495,22 @@ def tambah_pesanan(sistem_kue):
 
     tk.Button(tambah_pesanan_win, text="Simpan", command=simpan_pesanan, bg="#0288D1", fg="white").pack(pady=20)
 
+    tambah_pesanan_win.mainloop()
+
 # Fungsi untuk melihat antrian pesanan
 def lihat_daftar_antrian(sistem_kue):
     lihat_antrian_win = tk.Toplevel()
     lihat_antrian_win.title("Antrian Pesanan")
-    lihat_antrian_win.geometry("600x400")
+    window_width = 600
+    window_height = 400
+
+    # Menghitung posisi x dan y agar jendela tambahan berada di tengah layar
+    screen_width = lihat_antrian_win.winfo_screenwidth()
+    screen_height = lihat_antrian_win.winfo_screenheight()
+    x = (screen_width // 2) - (window_width // 2)
+    y = (screen_height // 2) - (window_height // 2)
+
+    lihat_antrian_win.geometry(f"{window_width}x{window_height}+{x}+{y}")
     lihat_antrian_win.configure(bg="#E0F7FA")
 
     tree = ttk.Treeview(lihat_antrian_win, columns=("Nama", "Jumlah"), show="headings")
@@ -418,6 +520,8 @@ def lihat_daftar_antrian(sistem_kue):
 
     for pesanan in sistem_kue.antrian_pesanan:
         tree.insert("", tk.END, values=(pesanan.nama, pesanan.jumlah))
+
+    lihat_antrian_win.mainloop()
 
 # Fungsi untuk memproses antrian pesanan
 def proses_antrian_pesanan(sistem_kue):
@@ -430,18 +534,29 @@ def proses_antrian_pesanan(sistem_kue):
 
     proses_antrian_win = tk.Toplevel()
     proses_antrian_win.title("Proses Antrian")
-    proses_antrian_win.geometry("400x300")
+    window_width = 400
+    window_height = 300
+
+    # Menghitung posisi x dan y agar jendela tambahan berada di tengah layar
+    screen_width = proses_antrian_win.winfo_screenwidth()
+    screen_height = proses_antrian_win.winfo_screenheight()
+    x = (screen_width // 2) - (window_width // 2)
+    y = (screen_height // 2) - (window_height // 2)
+
+    proses_antrian_win.geometry(f"{window_width}x{window_height}+{x}+{y}")
     proses_antrian_win.configure(bg="#E0F7FA")
 
-    tk.Label(proses_antrian_win, text="Nama Kue:", bg="#E0F7FA").pack(pady=5)
+    tk.Label(proses_antrian_win, text="Nama Kue:", bg="#E0F7FA").pack(pady=10)
     entry_nama = tk.Entry(proses_antrian_win)
     entry_nama.pack(pady=5)
 
-    tk.Label(proses_antrian_win, text="Status Pesanan (selesai/batal):", bg="#E0F7FA").pack(pady=5)
+    tk.Label(proses_antrian_win, text="Status Pesanan (selesai/batal):", bg="#E0F7FA").pack(pady=10)
     entry_status = tk.Entry(proses_antrian_win)
     entry_status.pack(pady=5)
 
-    tk.Button(proses_antrian_win, text="Proses", command=proses, bg="#0288D1", fg="white").pack(pady=20)
+    tk.Button(proses_antrian_win, text="Proses", command=proses, bg="#0288D1", fg="white").pack(pady=10)
+
+    proses_antrian_win.mainloop()
 
 # Fungsi untuk menghapus pesanan dari antrian
 def hapus_antrian(sistem_kue):
@@ -453,15 +568,26 @@ def hapus_antrian(sistem_kue):
 
     hapus_antrian_win = tk.Toplevel()
     hapus_antrian_win.title("Hapus Antrian")
-    hapus_antrian_win.geometry("400x300")
+    window_width = 400
+    window_height = 300
+
+    # Menghitung posisi x dan y agar jendela tambahan berada di tengah layar
+    screen_width = hapus_antrian_win.winfo_screenwidth()
+    screen_height = hapus_antrian_win.winfo_screenheight()
+    x = (screen_width // 2) - (window_width // 2)
+    y = (screen_height // 2) - (window_height // 2)
+
+    hapus_antrian_win.geometry(f"{window_width}x{window_height}+{x}+{y}")
     hapus_antrian_win.configure(bg="#E0F7FA")
 
     tk.Label(hapus_antrian_win, text="Nama Kue:", bg="#E0F7FA").pack(pady=5)
     entry_nama = tk.Entry(hapus_antrian_win)
     entry_nama.pack(pady=5)
 
-    tk.Button(hapus_antrian_win, text="Hapus", command=hapus, bg="#0288D1", fg="white").pack(pady=20)
+    tk.Button(hapus_antrian_win, text="Hapus", command=hapus, bg="#0288D1", fg="white").pack(pady=10)
 
+    hapus_antrian_win.mainloop()
+    
 # Contoh inisialisasi sistem dan menjalankan menu
 sistem_kue = ManajemenTokoKue()
 menu_staff(sistem_kue)
